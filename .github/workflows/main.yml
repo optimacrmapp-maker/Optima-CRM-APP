@@ -1,7 +1,7 @@
-name: Deploy site
+name: Deploy
 on:
   push:
-    branches: ["main"]
+    branches: [main]
 permissions:
   contents: read
   pages: write
