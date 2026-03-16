@@ -4,13 +4,24 @@ import react from '@vitejs/plugin-react'
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
-  // A propriedade 'base' é essencial para o GitHub Pages saber em qual pasta o site está.
-  // Deve ser o nome exato do seu repositório entre barras.
-  base: '/Optima-CRM-APP/',
   
+  // A 'base' precisa ser o nome exato do seu repositório entre barras.
+  // Isso garante que o GitHub saiba onde buscar os arquivos JS e CSS.
+  base: '/Optima-CRM-APP/',
+
   build: {
-    // Isso garante que os arquivos gerados (JS e CSS) fiquem em caminhos que o GitHub entenda.
+    // Define a pasta de saída para o deploy
     outDir: 'dist',
+    // Garante que os arquivos de assets fiquem organizados
     assetsDir: 'assets',
-  }
+    // Melhora a compatibilidade do build
+    sourcemap: false
+  },
+  
+  resolve: {
+    alias: {
+      // Isso ajuda a evitar erros de caminhos de arquivos
+      "@": "/src",
+    },
+  },
 })
