@@ -1,6 +1,7 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
-import App from './App' // Importando o App corrigido acima
+import App from './App'
+import './index.css' // Garante que seus estilos carreguem
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
