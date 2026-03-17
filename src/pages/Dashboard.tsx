@@ -1,125 +1,97 @@
 import React, { useEffect, useState } from 'react';
 import { supabase } from '../lib/supabase';
+import { LayoutDashboard, Users, BarChart3, Plus, RefreshCcw, Search } from 'lucide-react';
 
 export default function Dashboard() {
   const [clientes, setClientes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [nome, setNome] = useState('');
-  const [status, setStatus] = useState('Ativo');
 
-  // 1. Busca os clientes do banco de dados
   const fetchClientes = async () => {
-    try {
-      setLoading(true);
-      const { data, error } = await supabase
-        .from('clientes')
-        .select('*')
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-      setClientes(data || []);
-    } catch (err) {
-      console.error('Erro:', err.message);
-    } finally {
-      setLoading(false);
-    }
+    setLoading(true);
+    const { data } = await supabase.from('clientes').select('*').order('created_at', { ascending: false });
+    if (data) setClientes(data);
+    setLoading(false);
   };
 
-  // 2. Salva um novo cliente no banco de dados
-  const handleAddCliente = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!nome) return alert('Digite o nome do cliente!');
-
-    const { error } = await supabase
-      .from('clientes')
-      .insert([{ nome, status }]);
-
-    if (error) {
-      alert('Erro ao salvar: ' + error.message);
-    } else {
-      setNome('');
-      fetchClientes(); // Atualiza a lista automaticamente
-    }
-  };
-
-  useEffect(() => {
-    fetchClientes();
-  }, []);
+  useEffect(() => { fetchClientes(); }, []);
 
   const styles = {
-    container: { display: 'flex', minHeight: '100vh', backgroundColor: '#f3f4f6', fontFamily: 'sans-serif' },
-    sidebar: { width: '260px', backgroundColor: '#1e3a8a', color: 'white', padding: '25px' },
-    main: { flex: 1, padding: '40px' },
-    card: { backgroundColor: 'white', padding: '20px', borderRadius: '12px', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)', marginBottom: '30px' },
-    input: { padding: '10px', borderRadius: '6px', border: '1px solid #ddd', marginRight: '10px', width: '200px' },
-    select: { padding: '10px', borderRadius: '6px', border: '1px solid #ddd', marginRight: '10px' },
-    btn: { backgroundColor: '#2563eb', color: 'white', border: 'none', padding: '10px 20px', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold' }
+    sidebar: { width: '260px', backgroundColor: '#0f172a', color: '#f8fafc', padding: '24px', display: 'flex', flexDirection: 'column' as const },
+    card: { bg: 'white', p: '24px', radius: '16px', shadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' },
+    statusBadge: (status: string) => ({
+      padding: '4px 12px', borderRadius: '20px', fontSize: '12px', fontWeight: '600',
+      backgroundColor: status === 'Ativo' ? '#dcfce7' : '#fef3c7',
+      color: status === 'Ativo' ? '#166534' : '#92400e'
+    })
   };
 
   return (
-    <div style={styles.container}>
+    <div style={{ display: 'flex', minHeight: '100vh', backgroundColor: '#f8fafc', fontFamily: 'Inter, sans-serif' }}>
+      {/* Sidebar Profissional */}
       <aside style={styles.sidebar}>
-        <h1 style={{ fontSize: '22px', marginBottom: '40px' }}>⭐ Hub Optima</h1>
-        <div style={{ padding: '12px', backgroundColor: '#1d4ed8', borderRadius: '8px' }}>📊 Dashboard</div>
+        <div style={{ fontSize: '22px', fontWeight: '800', marginBottom: '40px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <div style={{ width: '32px', height: '32px', backgroundColor: '#3b82f6', borderRadius: '8px' }}></div>
+          Optima CRM
+        </div>
+        <nav style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', backgroundColor: '#1e293b', borderRadius: '12px', cursor: 'pointer' }}>
+            <LayoutDashboard size={20} /> Dashboard
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', color: '#94a3b8', cursor: 'pointer' }}>
+            <Users size={20} /> Clientes
+          </div>
+        </nav>
       </aside>
 
-      <main style={styles.main}>
-        <h2 style={{ fontSize: '28px', color: '#111827', marginBottom: '20px' }}>Visão Geral</h2>
+      {/* Área Principal */}
+      <main style={{ flex: 1, padding: '40px' }}>
+        <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px' }}>
+          <div>
+            <h1 style={{ fontSize: '30px', fontWeight: '700', color: '#1e293b', margin: 0 }}>Dashboard de Vendas</h1>
+            <p style={{ color: '#64748b', marginTop: '4px' }}>Bem-vindo de volta, aqui estão seus números.</p>
+          </div>
+          <button style={{ backgroundColor: '#3b82f6', color: 'white', border: 'none', padding: '12px 24px', borderRadius: '12px', fontWeight: '600', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <Plus size={20} /> Novo Cliente
+          </button>
+        </header>
 
-        {/* Formulário para Adicionar */}
-        <div style={styles.card}>
-          <h3 style={{ marginTop: 0 }}>➕ Novo Cliente</h3>
-          <form onSubmit={handleAddCliente}>
-            <input 
-              style={styles.input} 
-              placeholder="Nome da Empresa" 
-              value={nome} 
-              onChange={(e) => setNome(e.target.value)} 
-            />
-            <select style={styles.select} value={status} onChange={(e) => setStatus(e.target.value)}>
-              <option value="Ativo">Ativo</option>
-              <option value="Pendente">Pendente</option>
-              <option value="Cancelado">Cancelado</option>
-            </select>
-            <button type="submit" style={styles.btn}>Salvar no Banco</button>
-          </form>
+        {/* Cards de Resumo */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '24px', marginBottom: '32px' }}>
+          <div style={{ ...styles.card, background: 'white', padding: '24px', borderRadius: '16px', boxShadow: styles.card.shadow }}>
+            <span style={{ color: '#64748b', fontSize: '14px', fontWeight: '600' }}>TOTAL DE CLIENTES</span>
+            <div style={{ fontSize: '32px', fontWeight: '800', color: '#1e293b', marginTop: '8px' }}>{clientes.length}</div>
+          </div>
+          <div style={{ ...styles.card, background: 'white', padding: '24px', borderRadius: '16px', boxShadow: styles.card.shadow }}>
+            <span style={{ color: '#64748b', fontSize: '14px', fontWeight: '600' }}>RECEITA ESTIMADA</span>
+            <div style={{ fontSize: '32px', fontWeight: '800', color: '#10b981', marginTop: '8px' }}>R$ 45.200</div>
+          </div>
         </div>
 
-        {/* Lista de Clientes */}
-        <div style={styles.card}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <h3>👥 Seus Clientes ({clientes.length})</h3>
-            <button onClick={fetchClientes} style={{ background: 'none', border: 'none', color: '#2563eb', cursor: 'pointer' }}>🔄 Atualizar</button>
+        {/* Tabela de Clientes Real */}
+        <div style={{ backgroundColor: 'white', borderRadius: '16px', boxShadow: styles.card.shadow, overflow: 'hidden' }}>
+          <div style={{ padding: '24px', borderBottom: '1px solid #f1f5f9', display: 'flex', justifyContent: 'space-between' }}>
+            <h3 style={{ margin: 0, color: '#1e293b' }}>Clientes Recentes</h3>
+            <RefreshCcw size={18} color="#64748b" style={{ cursor: 'pointer' }} onClick={fetchClientes} />
           </div>
-          
-          <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '10px' }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
             <thead>
-              <tr style={{ textAlign: 'left', borderBottom: '2px solid #eee' }}>
-                <th style={{ padding: '12px' }}>Nome</th>
-                <th style={{ padding: '12px' }}>Status</th>
+              <tr style={{ textAlign: 'left', backgroundColor: '#f8fafc', color: '#64748b', fontSize: '13px' }}>
+                <th style={{ padding: '16px 24px' }}>NOME</th>
+                <th style={{ padding: '16px 24px' }}>STATUS</th>
+                <th style={{ padding: '16px 24px' }}>AÇÕES</th>
               </tr>
             </thead>
             <tbody>
-              {loading ? (
-                <tr><td colSpan={2} style={{ padding: '20px', textAlign: 'center' }}>Carregando...</td></tr>
-              ) : clientes.length > 0 ? (
-                clientes.map((c: any) => (
-                  <tr key={c.id} style={{ borderBottom: '1px solid #f3f4f6' }}>
-                    <td style={{ padding: '12px' }}>{c.nome}</td>
-                    <td style={{ padding: '12px' }}>
-                      <span style={{ 
-                        padding: '4px 8px', 
-                        borderRadius: '4px', 
-                        fontSize: '12px',
-                        backgroundColor: c.status === 'Ativo' ? '#dcfce7' : '#fee2e2',
-                        color: c.status === 'Ativo' ? '#166534' : '#991b1b'
-                      }}>{c.status}</span>
-                    </td>
-                  </tr>
-                ))
-              ) : (
-                <tr><td colSpan={2} style={{ padding: '30px', textAlign: 'center', color: '#666' }}>Nenhum cliente cadastrado no Supabase.</td></tr>
-              )}
+              {clientes.map((c: any) => (
+                <tr key={c.id} style={{ borderBottom: '1px solid #f1f5f9' }}>
+                  <td style={{ padding: '16px 24px', fontWeight: '500' }}>{c.nome}</td>
+                  <td style={{ padding: '16px 24px' }}>
+                    <span style={styles.statusBadge(c.status)}>{c.status}</span>
+                  </td>
+                  <td style={{ padding: '16px 24px', color: '#3b82f6', cursor: 'pointer', fontSize: '14px' }}>Ver detalhes</td>
+                </tr>
+              ))}
             </tbody>
           </table>
         </div>
