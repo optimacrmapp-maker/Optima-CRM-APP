@@ -1,79 +1,75 @@
-import React, { useState, useEffect } from 'react';
-import { supabase } from '../lib/supabase';
-import { LayoutDashboard, Users, Settings, LogOut, Plus } from 'lucide-react';
+import React from 'react';
 
 export default function Dashboard() {
-  const [loading, setLoading] = useState(true);
-  const [data, setData] = useState([]);
+  // Estilos em variáveis para garantir o visual sem depender de arquivos externos
+  const styles = {
+    container: { display: 'flex', minHeight: '100vh', backgroundColor: '#f3f4f6', fontFamily: 'sans-serif' },
+    sidebar: { width: '250px', backgroundColor: '#1e3a8a', color: 'white', padding: '20px' },
+    main: { flex: 1, padding: '40px' },
+    header: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px' },
+    cardGrid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '20px', marginBottom: '30px' },
+    card: { backgroundColor: 'white', padding: '20px', borderRadius: '12px', boxShadow: '0 2px 4px rgba(0,0,0,0.1)', border: '1px solid #e5e7eb' },
+    table: { width: '100%', backgroundColor: 'white', borderRadius: '12px', overflow: 'hidden', borderCollapse: 'collapse' as const },
+    th: { backgroundColor: '#f9fafb', padding: '12px', textAlign: 'left' as const, fontSize: '12px', color: '#6b7280', textTransform: 'uppercase' as const, borderBottom: '1px solid #e5e7eb' },
+    td: { padding: '15px', borderBottom: '1px solid #f3f4f6', color: '#374151' },
+    button: { backgroundColor: '#2563eb', color: 'white', border: 'none', padding: '10px 20px', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold' as const }
+  };
 
   return (
-    <div className="flex min-h-screen bg-gray-100">
-      {/* Sidebar Lateral */}
-      <aside className="w-64 bg-blue-900 text-white hidden md:block">
-        <div className="p-6">
-          <h1 className="text-2xl font-bold">Optima CRM</h1>
-        </div>
-        <nav className="mt-6">
-          <a href="#" className="flex items-center px-6 py-3 bg-blue-800 text-white">
-            <LayoutDashboard className="mr-3" size={20} /> Dashboard
-          </a>
-          <a href="#" className="flex items-center px-6 py-3 text-blue-200 hover:bg-blue-800 hover:text-white">
-            <Users className="mr-3" size={20} /> Clientes
-          </a>
-          <a href="#" className="flex items-center px-6 py-3 text-blue-200 hover:bg-blue-800 hover:text-white">
-            <Settings className="mr-3" size={20} /> Configurações
-          </a>
+    <div style={styles.container}>
+      {/* Sidebar */}
+      <aside style={styles.sidebar}>
+        <h1 style={{ fontSize: '24px', fontWeight: 'bold', marginBottom: '30px' }}>Optima CRM</h1>
+        <nav>
+          <div style={{ padding: '12px', backgroundColor: '#1e40af', borderRadius: '8px', marginBottom: '10px', cursor: 'pointer' }}>📊 Dashboard</div>
+          <div style={{ padding: '12px', color: '#bfdbfe', cursor: 'pointer' }}>👥 Clientes</div>
+          <div style={{ padding: '12px', color: '#bfdbfe', cursor: 'pointer' }}>⚙️ Configurações</div>
         </nav>
       </aside>
 
-      {/* Conteúdo Principal */}
-      <main className="flex-1 p-8">
-        <header className="flex justify-between items-center mb-8">
-          <h2 className="text-3xl font-semibold text-gray-800">Visão Geral</h2>
-          <button className="bg-blue-600 text-white px-4 py-2 rounded-lg flex items-center hover:bg-blue-700 transition">
-            <Plus className="mr-2" size={20} /> Novo Cliente
-          </button>
+      {/* Conteúdo */}
+      <main style={styles.main}>
+        <header style={styles.header}>
+          <h2 style={{ fontSize: '28px', color: '#111827', margin: 0 }}>Visão Geral</h2>
+          <button style={styles.button}>+ Novo Cliente</button>
         </header>
 
-        {/* Cards de Indicadores */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
-            <p className="text-gray-500 text-sm uppercase font-bold">Total de Clientes</p>
-            <p className="text-3xl font-bold text-blue-600">128</p>
+        {/* Indicadores */}
+        <div style={styles.cardGrid}>
+          <div style={styles.card}>
+            <span style={{ fontSize: '12px', color: '#6b7280', fontWeight: 'bold' }}>TOTAL DE CLIENTES</span>
+            <div style={{ fontSize: '32px', fontWeight: 'bold', color: '#2563eb', marginTop: '10px' }}>128</div>
           </div>
-          <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
-            <p className="text-gray-500 text-sm uppercase font-bold">Vendas do Mês</p>
-            <p className="text-3xl font-bold text-green-600">R$ 12.450</p>
+          <div style={styles.card}>
+            <span style={{ fontSize: '12px', color: '#6b7280', fontWeight: 'bold' }}>VENDAS DO MÊS</span>
+            <div style={{ fontSize: '32px', fontWeight: 'bold', color: '#059669', marginTop: '10px' }}>R$ 12.450</div>
           </div>
-          <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
-            <p className="text-gray-500 text-sm uppercase font-bold">Pendências</p>
-            <p className="text-3xl font-bold text-red-600">5</p>
+          <div style={styles.card}>
+            <span style={{ fontSize: '12px', color: '#6b7280', fontWeight: 'bold' }}>PENDÊNCIAS</span>
+            <div style={{ fontSize: '32px', fontWeight: 'bold', color: '#dc2626', marginTop: '10px' }}>5</div>
           </div>
         </div>
 
-        {/* Tabela de Exemplo */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-          <div className="p-6 border-b border-gray-200">
-            <h3 className="font-bold text-gray-700">Últimos Clientes Cadastrados</h3>
-          </div>
-          <table className="w-full text-left border-collapse">
-            <thead className="bg-gray-50 text-gray-600 uppercase text-xs">
+        {/* Tabela */}
+        <div style={{ backgroundColor: 'white', borderRadius: '12px', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
+          <table style={styles.table}>
+            <thead>
               <tr>
-                <th className="p-4">Nome</th>
-                <th className="p-4">Status</th>
-                <th className="p-4">Data</th>
+                <th style={styles.th}>Nome do Cliente</th>
+                <th style={styles.th}>Status</th>
+                <th style={styles.th}>Data de Cadastro</th>
               </tr>
             </thead>
-            <tbody className="text-gray-700">
-              <tr className="border-t border-gray-100 hover:bg-gray-50">
-                <td className="p-4 font-medium">Empresa Exemplo LTDA</td>
-                <td className="p-4"><span className="bg-green-100 text-green-700 px-2 py-1 rounded text-xs">Ativo</span></td>
-                <td className="p-4">16/03/2026</td>
+            <tbody>
+              <tr>
+                <td style={styles.td}>Empresa Exemplo LTDA</td>
+                <td style={styles.td}><span style={{ backgroundColor: '#dcfce7', color: '#166534', padding: '4px 8px', borderRadius: '4px', fontSize: '12px' }}>Ativo</span></td>
+                <td style={styles.td}>16/03/2026</td>
               </tr>
-              <tr className="border-t border-gray-100 hover:bg-gray-50">
-                <td className="p-4 font-medium">Vinicius Santos</td>
-                <td className="p-4"><span className="bg-blue-100 text-blue-700 px-2 py-1 rounded text-xs">Prospect</span></td>
-                <td className="p-4">15/03/2026</td>
+              <tr>
+                <td style={styles.td}>Vinicius Santos</td>
+                <td style={styles.td}><span style={{ backgroundColor: '#dbeafe', color: '#1e40af', padding: '4px 8px', borderRadius: '4px', fontSize: '12px' }}>Prospect</span></td>
+                <td style={styles.td}>15/03/2026</td>
               </tr>
             </tbody>
           </table>
